@@ -4,7 +4,7 @@ pragma solidity >=0.4.22 <0.9.0;
 contract TicTacToe {
 
   event Created(address host, uint bet);
-  event Started(address host);
+  event Started(address host, address visitor, uint bet);
 
   struct Game {
     address visitor;
@@ -26,7 +26,7 @@ contract TicTacToe {
     require(msg.value == g.balance);
     g.balance += msg.value;
     g.visitor = msg.sender;
-    emit Started(host);
+    emit Started(host, msg.sender, g.balance);
   }
 
   function claim(address host) public {

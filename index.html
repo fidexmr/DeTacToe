@@ -7,9 +7,50 @@
     <title>TicTacToe</title>
 </head>
 <body>
-    <p></p>
+    <p id="log">Nothing</p>
+    <button id="connect">Connect</button>
+    <button id="create">Create</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <script>
-        var web3 = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
+        let web3;
+        let currentAddress = "";
+        window.addEventListener('load', function() {
+            if (typeof ethereum !== 'undefined') {
+                web3 = new Web3(ethereum);
+                document.getElementById('connect').addEventListener('click',async ()=>{
+                    updateAddress()
+                    startApp()
+                })
+            } else {
+                document.getElementById('log').textContent = "Please install Metamask"
+            }
+        })
+
+        async function startApp (){
+            web3.eth.getBlockNumber((err,res)=>console.log("current block: ",res))
+            // const web3 = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
+            const abi = await fetch("./build/contracts/TicTacToe.json").then(r=>r.json());
+            const ttt = new web3.eth.Contract(abi.abi,"0x9312464A0Bc5f7b42b7b8aD3C17D2e49571aD557");
+            updateAddress()
+            ttt.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"}).then(console.log)
+            ttt.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"}).then(console.log)
+            document.getElementById("create").addEventListener('click', async ()=>{
+                console.log(currentAddress)
+                ttt.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
+            })
+        }
+
+        function updateAddress(){
+            setInterval(async ()=>{
+                ethereum.send('eth_requestAccounts').then(answer=>{
+                    const accounts = answer.result;
+                    if(accounts !== undefined && accounts[0]){
+                        currentAddress = accounts[0];
+                        document.getElementById('log').textContent = currentAddress;
+                    }
+                })
+            }, 1000);
+        }
     </script>
 </body>
 </html>
