@@ -8,48 +8,68 @@
 </head>
 <body>
     <p id="log">Nothing</p>
+    <p id="balance"></p>
+    <p id="bet"></p>
     <button id="connect">Connect</button>
     <button id="create">Create</button>
+    <ul id="games"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <script>
         let web3;
         let currentAddress = "";
-        window.addEventListener('load', function() {
+        let currentHost;
+        let contract;
+        const createButton = document.getElementById("create");
+        const contractAddress = "0x6A7223446F60936D1a7c04c079d9e584b0CfCD53"
+
+        window.addEventListener('load', async function() {
             if (typeof ethereum !== 'undefined') {
                 web3 = new Web3(ethereum);
-                document.getElementById('connect').addEventListener('click',async ()=>{
-                    updateAddress()
-                    startApp()
-                })
+                const connectButton = document.getElementById('connect');
+                await updateAddress()
+                if(currentAddress !== "") {
+                    connectButton.style.display = "none";
+                    setInterval(updateAddress, 1000)
+                    await startApp()
+                } else {
+                    connectButton.addEventListener('click',()=>{})
+                }
             } else {
                 document.getElementById('log').textContent = "Please install Metamask"
             }
         })
 
         async function startApp (){
-            web3.eth.getBlockNumber((err,res)=>console.log("current block: ",res))
-            // const web3 = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
             const abi = await fetch("./build/contracts/TicTacToe.json").then(r=>r.json());
-            const ttt = new web3.eth.Contract(abi.abi,"0x9312464A0Bc5f7b42b7b8aD3C17D2e49571aD557");
-            updateAddress()
-            ttt.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"}).then(console.log)
-            ttt.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"}).then(console.log)
-            document.getElementById("create").addEventListener('click', async ()=>{
+            contract = new web3.eth.Contract(abi.abi,contractAddress);
+            const pastGames = await contract.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"})
+            const startedGames = await contract.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"})
+            const finishedGames = await contract.getPastEvents("Squared", {fromBlock: 0, toBlock: "latest"})
+            
+            
+            createButton.addEventListener('click', async ()=>{
                 console.log(currentAddress)
-                ttt.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
+                contract.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
             })
         }
 
-        function updateAddress(){
-            setInterval(async ()=>{
-                ethereum.send('eth_requestAccounts').then(answer=>{
-                    const accounts = answer.result;
-                    if(accounts !== undefined && accounts[0]){
-                        currentAddress = accounts[0];
-                        document.getElementById('log').textContent = currentAddress;
-                    }
-                })
-            }, 1000);
+        async function updateAddress(){
+            const answer = await ethereum.send('eth_requestAccounts')
+            const accounts = answer.result;
+            if(accounts !== undefined && accounts[0]){
+                currentAddress = accounts[0];
+                document.getElementById('log').textContent = currentAddress;
+                const balance = await web3.eth.getBalance(currentAddress);
+                document.getElementById('balance').textContent = web3.utils.fromWei(balance, "ether");
+                if(contract !== undefined) {
+                    currentHost = await contract.methods.games(currentAddress).call();
+                    const gameBet = web3.utils.fromWei(currentHost.balance, "ether");
+                    const betDisplay = document.getElementById('bet');
+                    const hasGame = Number(gameBet) > 0;
+                    betDisplay.textContent = hasGame ? `Hosting game for ${gameBet} eth` : "No game hosted";
+                    createButton.style.display = hasGame ? "none" : "auto";
+                }
+            }
         }
     </script>
 </body>
