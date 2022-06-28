@@ -4,8 +4,8 @@ pragma solidity >=0.4.22 <0.9.0;
 contract TicTacToe {
 
   event Created(address host, uint bet);
-  event Started(address host, address visitor, uint bet);
-  event Squared(address host, address visitor, bool draw, address winner, uint bet);
+  event Cancelled(address host);
+  event Move(address host, address author, uint[2] coords);
 
   struct Game {
     address host;
@@ -13,7 +13,18 @@ contract TicTacToe {
     uint bet;
   }
 
+  struct Status {
+    uint8 created;
+    uint8 finished;
+    uint8 won;
+    uint8 lost;
+    uint8 tie;
+    address current;
+  }
+
   mapping (address=>Game) public games;
+
+  mapping (address=>Status) public status;
 
   function create() public payable {
     Game storage g = games[msg.sender];

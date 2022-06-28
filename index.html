@@ -91,6 +91,8 @@
             const isPlaying = activeGames > 0;
             const visitingGames = isHosting ? activeGames - 1 : activeGames;
             const isGameVisitor = visitingGames > 0;
+            const currentGameHost = 
+            console.log(isGameVisitor)
             document.getElementById('stats').textContent = `You have played ${totalSquared} games in total, created ${totalCreated}, won ${totalGamesWon} for ${totalAmountWon}`;
         }
 
@@ -119,7 +121,7 @@
                 const value = game.bet;
                 const button = document.createElement('button');
                 button.innerHTML = `Join ${address} for ${web3.utils.fromWei(value, "ether")} DGCC`;
-                button.onclick = () => {contract.methods.join(address).send({value})}
+                button.onclick = () => {contract.methods.join(address).send({value, from: currentAddress})}
                 button.style.display = "block";
                 gamesList.appendChild(button);
             })
