@@ -11,3 +11,10 @@ The implementation runs as follows:
 1. complete the game's core logic
 1. do a nice front-end
 1. deploy the contract and the website to prod platforms
+
+## Prospects
+Game mechanic: started can win or tie, visitor can lose or tie
+=> What is the game about?
+=> What if no one joins?
+=> What if a player stops playing when the scenario becomes obvious, should all scenarii be pre-encoded?
+=> Can a player create a new game offer while being visitor to another one?

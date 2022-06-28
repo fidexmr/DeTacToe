@@ -10,26 +10,32 @@
     <p id="log">Nothing</p>
     <p id="balance"></p>
     <p id="bet"></p>
+    <p id="stats"></p>
     <button id="connect">Connect</button>
-    <button id="create">Create</button>
+    <button id="create" style="display: none;">Start a game for 1 DGCC</button>
     <ul id="games"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <script>
-        let web3;
+        const refreshRate = 1500;
+        let web3;   
         let currentAddress = "";
         let currentHost;
         let contract;
+        let isHosting = false;
+        let createdGames, startedGames, squaredGames;
         const createButton = document.getElementById("create");
-        const contractAddress = "0x6A7223446F60936D1a7c04c079d9e584b0CfCD53"
+        const contractAddress = "0xF2FD0612c2AF4E09d36C8218F68420FC0b366e13"
 
         window.addEventListener('load', async function() {
             if (typeof ethereum !== 'undefined') {
                 web3 = new Web3(ethereum);
+                const abi = await fetch("./build/contracts/TicTacToe.json").then(r=>r.json());
+                contract = new web3.eth.Contract(abi.abi,contractAddress);
                 const connectButton = document.getElementById('connect');
-                await updateAddress()
+                await update()
                 if(currentAddress !== "") {
                     connectButton.style.display = "none";
-                    setInterval(updateAddress, 1000)
+                    setInterval(update, refreshRate)
                     await startApp()
                 } else {
                     connectButton.addEventListener('click',()=>{})
@@ -40,36 +46,44 @@
         })
 
         async function startApp (){
-            const abi = await fetch("./build/contracts/TicTacToe.json").then(r=>r.json());
-            contract = new web3.eth.Contract(abi.abi,contractAddress);
-            const pastGames = await contract.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"})
-            const startedGames = await contract.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"})
-            const finishedGames = await contract.getPastEvents("Squared", {fromBlock: 0, toBlock: "latest"})
-            
-            
             createButton.addEventListener('click', async ()=>{
                 console.log(currentAddress)
                 contract.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
             })
         }
 
-        async function updateAddress(){
+        async function update(){
             const answer = await ethereum.send('eth_requestAccounts')
             const accounts = answer.result;
             if(accounts !== undefined && accounts[0]){
                 currentAddress = accounts[0];
                 document.getElementById('log').textContent = currentAddress;
                 const balance = await web3.eth.getBalance(currentAddress);
-                document.getElementById('balance').textContent = web3.utils.fromWei(balance, "ether");
+                document.getElementById('balance').textContent = `Available: ${web3.utils.fromWei(balance, "ether")} DGCC`;
                 if(contract !== undefined) {
+                    createdGames = await contract.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"});
+                    startedGames = await contract.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"});
+                    squaredGames = await contract.getPastEvents("Squared", {fromBlock: 0, toBlock: "latest"});
                     currentHost = await contract.methods.games(currentAddress).call();
                     const gameBet = web3.utils.fromWei(currentHost.balance, "ether");
                     const betDisplay = document.getElementById('bet');
-                    const hasGame = Number(gameBet) > 0;
-                    betDisplay.textContent = hasGame ? `Hosting game for ${gameBet} eth` : "No game hosted";
-                    createButton.style.display = hasGame ? "none" : "auto";
+                    isHosting = Number(gameBet) > 0;
+                    betDisplay.textContent = isHosting ? `Hosting game for ${gameBet} DGCC` : "No game hosted";
+                    createButton.style.display = isHosting ? "none" : "auto";
+                    count();
                 }
             }
+        }
+
+        function count(){
+            const totalSquared = squaredGames.filter(entry=>entry.returnValues.host === currentAddress || entry.returnValues.visitor === currentAddress).reduce((a,b)=>(a+b))
+            const totalCreated = createdGames.filter(entry=>entry.returnValues.host === currentAddress).reduce((a,b)=>(a+b))
+            const totalStarted = startedGames.filter(entry=>entry.returnValues.visitor === currentAddress || entry.returnValues.host === currentAddress).reduce((a,b)=>(a+b))
+            const totalWon = squaredGames.filter(entry=>entry.returnValues.winner === currentAddress).reduce((a,b)=>(a+b))
+            const activeGames = totalStarted - totalSquared;
+            const isPlaying = activeGames > 0;
+            const visitingGames = isHosting ? activeGames - 1 : activeGames;
+            const isGameVisitor = visitingGames > 0;
         }
     </script>
 </body>
