@@ -16,115 +16,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <ul id="join"></ul>
     <script>
-        const refreshRate = 1500;
-        const gamesRefreshRate = 3000;
-        let web3;   
-        let currentAddress = "";
-        let currentHost;
-        let contract;
-        let isHosting = false;
-        let createdGames, startedGames, squaredGames;
-        const createButton = document.getElementById("create");
-        const contractAddress = "0x7c0Db54B2441a3bdbA074277C9AAb49ed37E74F1"
+        const contractChain = "0x1691";
+        const contractAddress = "0xBEE5EB1764b8161aa877e6b05685581236A0FA77";
 
-        window.addEventListener('load', async function() {
-            if (typeof ethereum !== 'undefined') {
-                web3 = new Web3(ethereum);
-                const abi = await fetch("./build/contracts/TicTacToe.json").then(r=>r.json());
-                contract = new web3.eth.Contract(abi.abi,contractAddress);
-                const connectButton = document.getElementById('connect');
-                await updateAddress()
-                if(currentAddress !== "") {
-                    connectButton.style.display = "none";
-                    setInterval(updateAddress, refreshRate)
-                    setInterval(updateGames, gamesRefreshRate)
-                    await startApp()
-                } else {
-                    connectButton.addEventListener('click',()=>{})
-                }
+        let web3, contract, currentAddress;
+        let isPlaying, isHosting, isHosted;
+
+        const log = document.getElementById('log')
+        const stats = document.getElementById('stats')
+        const balance = document.getElementById('balance')
+        const create = document.getElementById('create');
+        const connect = document.getElementById('connect');
+
+        window.addEventListener('load', init);
+
+        function checkAccounts(accounts){
+            if(accounts != undefined && accounts.length > 0){
+                currentAddress = accounts[0]
+                log.textContent = currentAddress;
+                web3.eth.getBalance(currentAddress).then(amount=>balance.textContent = `Available: ${web3.utils.fromWei(amount, "ether")} DGCC`);
+                connect.style.display = "none";
+                updatePlayerPanel()
+                updateGamesList()
             } else {
-                document.getElementById('log').textContent = "Please install Metamask"
+                log.textContent = "Not connected";
+                balance.textContent = ""
+                connect.style.display = "block"
             }
-        })
+        }
 
-        async function startApp (){
-            createButton.addEventListener('click', async ()=>{
+        function updateGamesList(){
+            if(contract !== undefined && currentAddress !== undefined){
+
+            }
+        }
+
+        function updatePlayerPanel(){
+            if(contract !== undefined && currentAddress !== undefined){
+                console.log(currentAddress)
+                contract.methods.status(currentAddress).call().then(status=>{
+                    /* stats.textContent = `Created ${status.created}, won ${status.won}, lost ${status.lost}, tie ${status.tie}`;
+                    isPlaying = !/^0x0+$/.test(status.current);
+                    isHosting = isPlaying && status.current === currentAddress;
+                    isHosted = isPlaying && !isHosting;
+                    create.style.display = !isPlaying ? "block" : "none"; */
+                })
+            }
+        }
+
+        function checkNetwork (chainId) {
+            if(contractChain !== chainId) {
+                log.textContent = `Wrong network ${chainId}`
+            } else {
+                web3.eth.getAccounts().then(checkAccounts);
+            }
+        }
+
+        function init (){
+            if(window.ethereum === undefined) {
+                log.textContent = "Install Metamask"
+                return
+            }
+            web3 = new Web3(ethereum);
+
+            // Network
+            ethereum.on('connect', checkNetwork);
+            ethereum.on('disconnect', e=>log.textContent = "Connectivity issue" + e);
+            ethereum.on('chainChanged', checkNetwork);
+
+            // Account
+            web3.eth.getAccounts().then(checkAccounts);
+            ethereum.on('accountsChanged', ()=>checkAccounts(web3.eth.accounts[0]));// web3 accounts are checksum-ed.
+            connect.onclick = ()=>{ web3.eth.requestAccounts().then(checkAccounts) };
+
+            // Contract
+            const abi = fetch("./build/contracts/TicTacToe.json").then(r=>r.json()).then(compiledContract=>{
+                contract = new web3.eth.Contract(compiledContract.abi,contractAddress);
+                handleContract();
+            });
+        }
+
+        function handleContract(){
+            create.onclick = ()=>{
                 contract.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
-            })
-        }
-
-        async function updateAddress(){
-            const accounts = await web3.eth.getAccounts();
-            if(accounts !== undefined && accounts[0]){
-                currentAddress = accounts[0];
-                document.getElementById('log').textContent = currentAddress;
-                const balance = await web3.eth.getBalance(currentAddress);
-                document.getElementById('balance').textContent = `Available: ${web3.utils.fromWei(balance, "ether")} DGCC`;
-                if(contract !== undefined) {
-                    currentHost = await contract.methods.games(currentAddress).call();
-                    const gameBet = web3.utils.fromWei(currentHost.bet, "ether");
-                    const betDisplay = document.getElementById('bet');
-                    isHosting = Number(gameBet) > 0;
-                    betDisplay.textContent = isHosting ? `Hosting game for ${gameBet} DGCC` : "No game hosted";
-                    createButton.style.display = isHosting ? "none" : "block";
-                }
-            }
-        }
-
-        async function updateGames(){
-            if(contract !== undefined) {
-                createdGames = await contract.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"});
-                startedGames = await contract.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"});
-                squaredGames = await contract.getPastEvents("Squared", {fromBlock: 0, toBlock: "latest"});
-                updateStats();
-                updateAvailableGames();
-            }
-        }
-
-        function updateStats(){
-            const totalSquared = squaredGames.filter(entry=>entry.returnValues.host === currentAddress || entry.returnValues.visitor === currentAddress).length;
-            const totalCreated = createdGames.filter(entry=>entry.returnValues.host === currentAddress).length;
-            const totalStarted = startedGames.filter(entry=>entry.returnValues.visitor === currentAddress || entry.returnValues.host === currentAddress).length;
-            const totalGamesWon = squaredGames.filter(entry=>entry.returnValues.winner === currentAddress).length;
-            const totalAmountWon = squaredGames.filter(entry=>returnValues.winner === currentAddress).reduce((a,b)=>(a.returnValues.bet+b.returnValues.b),0);
-            const activeGames = totalStarted - totalSquared;
-            const isPlaying = activeGames > 0;
-            const visitingGames = isHosting ? activeGames - 1 : activeGames;
-            const isGameVisitor = visitingGames > 0;
-            const currentGameHost = 
-            console.log(isGameVisitor)
-            document.getElementById('stats').textContent = `You have played ${totalSquared} games in total, created ${totalCreated}, won ${totalGamesWon} for ${totalAmountWon}`;
-        }
-
-        function updateAvailableGames(){
-            const hostAddresses = {};
-            createdGames.forEach(entry=>{
-                const host = entry.returnValues.host;
-                hostAddresses[host] = hostAddresses[host] === undefined ? 1 : hostAddresses[host] + 1
-            });
-            startedGames.forEach(entry=>{
-                const host = entry.returnValues.host;
-                hostAddresses[host] -= 1;
-                if(hostAddresses[host] === 0) {
-                    delete hostAddresses[host];
-                }
-            });
-            if(hostAddresses[currentAddress] !== undefined) {
-                // Don't query and show current hosted game, it's done elsewhere.
-                delete hostAddresses[currentAddress];
-            }
-            const gamesList = document.getElementById('join');
-            gamesList.innerHTML = "";
-            Object.keys(hostAddresses).forEach(async address=>{
-                // This doesn't scale and eventually meets the refreshing rate.
-                const game = await contract.methods.games(address).call()
-                const value = game.bet;
-                const button = document.createElement('button');
-                button.innerHTML = `Join ${address} for ${web3.utils.fromWei(value, "ether")} DGCC`;
-                button.onclick = () => {contract.methods.join(address).send({value, from: currentAddress})}
-                button.style.display = "block";
-                gamesList.appendChild(button);
-            })
+            };
+            updatePlayerPanel()
+            updateGamesList()
         }
     </script>
 </body>

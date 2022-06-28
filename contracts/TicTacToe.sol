@@ -5,6 +5,7 @@ contract TicTacToe {
 
   event Created(address host, uint bet);
   event Cancelled(address host);
+  event Started(address host, address visitor);
   event Move(address host, address author, uint[2] coords);
 
   struct Game {
@@ -14,11 +15,10 @@ contract TicTacToe {
   }
 
   struct Status {
-    uint8 created;
-    uint8 finished;
-    uint8 won;
-    uint8 lost;
-    uint8 tie;
+    uint created;
+    uint won;
+    uint lost;
+    uint tie;
     address current;
   }
 
@@ -32,7 +32,23 @@ contract TicTacToe {
     require(msg.value > 0 && g.bet == 0);
     g.bet = msg.value;
     g.host = msg.sender;
+    Status storage player = status[msg.sender];
+    player.created += 1;
+    player.current = msg.sender;
     emit Created(msg.sender, g.bet);
+  }
+
+  function cancel() public payable {
+    Game storage g = games[msg.sender];
+    require(g.bet > 0);
+    Status storage player = status[msg.sender];
+    // The require above should ensure that player.created > 0, and prevent underflow.
+    player.created -= 1;
+    player.current = address(0);
+    // Recharge user.
+    msg.sender.call{value: g.bet};
+    g.bet = 0;
+    emit Cancelled(msg.sender);
   }
 
   function join(address host) public payable {
@@ -40,7 +56,9 @@ contract TicTacToe {
     // Bets must be identical
     require(msg.value == g.bet);
     g.visitor = msg.sender;
-    emit Started(host, msg.sender, g.bet);
+    Status storage player = status[msg.sender];
+    player.current = host;
+    emit Started(host, msg.sender);
   }
 
   function claim(address host) public {
@@ -48,7 +66,5 @@ contract TicTacToe {
     require(g.bet > 0);
     msg.sender.call{value: g.bet * 2};
     g.bet = 0;
-    bool isDraw = false;
-    emit Squared(host, g.visitor, isDraw, msg.sender, g.bet);
   }
 }
