@@ -5,7 +5,7 @@ contract TicTacToe {
 
   event Created(address host, uint bet);
   event Started(address host, address visitor, uint bet);
-  event Squared(address host, address visitor, address winner, uint bet);
+  event Squared(address host, address visitor, bool draw, address winner, uint bet);
 
   struct Game {
     address host;
@@ -37,6 +37,7 @@ contract TicTacToe {
     require(g.bet > 0);
     msg.sender.call{value: g.bet * 2};
     g.bet = 0;
-    emit Squared(host, g.visitor, msg.sender, g.bet);
+    bool isDraw = false;
+    emit Squared(host, g.visitor, isDraw, msg.sender, g.bet);
   }
 }

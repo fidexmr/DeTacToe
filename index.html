@@ -13,10 +13,11 @@
     <p id="stats"></p>
     <button id="connect">Connect</button>
     <button id="create" style="display: none;">Start a game for 1 DGCC</button>
-    <ul id="games"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
+    <ul id="join"></ul>
     <script>
         const refreshRate = 1500;
+        const gamesRefreshRate = 3000;
         let web3;   
         let currentAddress = "";
         let currentHost;
@@ -24,7 +25,7 @@
         let isHosting = false;
         let createdGames, startedGames, squaredGames;
         const createButton = document.getElementById("create");
-        const contractAddress = "0xF2FD0612c2AF4E09d36C8218F68420FC0b366e13"
+        const contractAddress = "0x7c0Db54B2441a3bdbA074277C9AAb49ed37E74F1"
 
         window.addEventListener('load', async function() {
             if (typeof ethereum !== 'undefined') {
@@ -32,10 +33,11 @@
                 const abi = await fetch("./build/contracts/TicTacToe.json").then(r=>r.json());
                 contract = new web3.eth.Contract(abi.abi,contractAddress);
                 const connectButton = document.getElementById('connect');
-                await update()
+                await updateAddress()
                 if(currentAddress !== "") {
                     connectButton.style.display = "none";
-                    setInterval(update, refreshRate)
+                    setInterval(updateAddress, refreshRate)
+                    setInterval(updateGames, gamesRefreshRate)
                     await startApp()
                 } else {
                     connectButton.addEventListener('click',()=>{})
@@ -47,43 +49,80 @@
 
         async function startApp (){
             createButton.addEventListener('click', async ()=>{
-                console.log(currentAddress)
                 contract.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
             })
         }
 
-        async function update(){
-            const answer = await ethereum.send('eth_requestAccounts')
-            const accounts = answer.result;
+        async function updateAddress(){
+            const accounts = await web3.eth.getAccounts();
             if(accounts !== undefined && accounts[0]){
                 currentAddress = accounts[0];
                 document.getElementById('log').textContent = currentAddress;
                 const balance = await web3.eth.getBalance(currentAddress);
                 document.getElementById('balance').textContent = `Available: ${web3.utils.fromWei(balance, "ether")} DGCC`;
                 if(contract !== undefined) {
-                    createdGames = await contract.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"});
-                    startedGames = await contract.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"});
-                    squaredGames = await contract.getPastEvents("Squared", {fromBlock: 0, toBlock: "latest"});
                     currentHost = await contract.methods.games(currentAddress).call();
-                    const gameBet = web3.utils.fromWei(currentHost.balance, "ether");
+                    const gameBet = web3.utils.fromWei(currentHost.bet, "ether");
                     const betDisplay = document.getElementById('bet');
                     isHosting = Number(gameBet) > 0;
                     betDisplay.textContent = isHosting ? `Hosting game for ${gameBet} DGCC` : "No game hosted";
-                    createButton.style.display = isHosting ? "none" : "auto";
-                    count();
+                    createButton.style.display = isHosting ? "none" : "block";
                 }
             }
         }
 
-        function count(){
-            const totalSquared = squaredGames.filter(entry=>entry.returnValues.host === currentAddress || entry.returnValues.visitor === currentAddress).reduce((a,b)=>(a+b))
-            const totalCreated = createdGames.filter(entry=>entry.returnValues.host === currentAddress).reduce((a,b)=>(a+b))
-            const totalStarted = startedGames.filter(entry=>entry.returnValues.visitor === currentAddress || entry.returnValues.host === currentAddress).reduce((a,b)=>(a+b))
-            const totalWon = squaredGames.filter(entry=>entry.returnValues.winner === currentAddress).reduce((a,b)=>(a+b))
+        async function updateGames(){
+            if(contract !== undefined) {
+                createdGames = await contract.getPastEvents("Created", {fromBlock: 0, toBlock: "latest"});
+                startedGames = await contract.getPastEvents("Started", {fromBlock: 0, toBlock: "latest"});
+                squaredGames = await contract.getPastEvents("Squared", {fromBlock: 0, toBlock: "latest"});
+                updateStats();
+                updateAvailableGames();
+            }
+        }
+
+        function updateStats(){
+            const totalSquared = squaredGames.filter(entry=>entry.returnValues.host === currentAddress || entry.returnValues.visitor === currentAddress).length;
+            const totalCreated = createdGames.filter(entry=>entry.returnValues.host === currentAddress).length;
+            const totalStarted = startedGames.filter(entry=>entry.returnValues.visitor === currentAddress || entry.returnValues.host === currentAddress).length;
+            const totalGamesWon = squaredGames.filter(entry=>entry.returnValues.winner === currentAddress).length;
+            const totalAmountWon = squaredGames.filter(entry=>returnValues.winner === currentAddress).reduce((a,b)=>(a.returnValues.bet+b.returnValues.b),0);
             const activeGames = totalStarted - totalSquared;
             const isPlaying = activeGames > 0;
             const visitingGames = isHosting ? activeGames - 1 : activeGames;
             const isGameVisitor = visitingGames > 0;
+            document.getElementById('stats').textContent = `You have played ${totalSquared} games in total, created ${totalCreated}, won ${totalGamesWon} for ${totalAmountWon}`;
+        }
+
+        function updateAvailableGames(){
+            const hostAddresses = {};
+            createdGames.forEach(entry=>{
+                const host = entry.returnValues.host;
+                hostAddresses[host] = hostAddresses[host] === undefined ? 1 : hostAddresses[host] + 1
+            });
+            startedGames.forEach(entry=>{
+                const host = entry.returnValues.host;
+                hostAddresses[host] -= 1;
+                if(hostAddresses[host] === 0) {
+                    delete hostAddresses[host];
+                }
+            });
+            if(hostAddresses[currentAddress] !== undefined) {
+                // Don't query and show current hosted game, it's done elsewhere.
+                delete hostAddresses[currentAddress];
+            }
+            const gamesList = document.getElementById('join');
+            gamesList.innerHTML = "";
+            Object.keys(hostAddresses).forEach(async address=>{
+                // This doesn't scale and eventually meets the refreshing rate.
+                const game = await contract.methods.games(address).call()
+                const value = game.bet;
+                const button = document.createElement('button');
+                button.innerHTML = `Join ${address} for ${web3.utils.fromWei(value, "ether")} DGCC`;
+                button.onclick = () => {contract.methods.join(address).send({value})}
+                button.style.display = "block";
+                gamesList.appendChild(button);
+            })
         }
     </script>
 </body>

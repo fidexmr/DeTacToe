@@ -14,7 +14,7 @@ The implementation runs as follows:
 
 ## Prospects
 Game mechanic: started can win or tie, visitor can lose or tie
-=> What is the game about?
+=> Should an oracle be added in order to have random first round?
 => What if no one joins?
 => What if a player stops playing when the scenario becomes obvious, should all scenarii be pre-encoded?
 => Can a player create a new game offer while being visitor to another one?
