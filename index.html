@@ -12,36 +12,43 @@
     <p id="bet"></p>
     <p id="stats"></p>
     <button id="connect">Connect</button>
-    <button id="create" style="display: none;">Start a game for 1 DGCC</button>
+    <div id="game-panel">
+        <button id="create" style="display: none;">Start a game for 1 DGCC</button>
+        <ul id="join"></ul>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
-    <ul id="join"></ul>
     <script>
         const contractChain = "0x1691";
         const contractAddress = "0xBEE5EB1764b8161aa877e6b05685581236A0FA77";
 
         let web3, contract, currentAddress;
         let isPlaying, isHosting, isHosted;
+        let networkIsValid = false;
 
         const log = document.getElementById('log')
         const stats = document.getElementById('stats')
         const balance = document.getElementById('balance')
         const create = document.getElementById('create');
+        const join = document.getElementById('join');
+        const gamePanel = document.getElementById('game-panel')
         const connect = document.getElementById('connect');
 
         window.addEventListener('load', init);
 
         function checkAccounts(accounts){
-            if(accounts != undefined && accounts.length > 0){
+            if(networkIsValid && accounts !== undefined && accounts.length > 0){
                 currentAddress = accounts[0]
                 log.textContent = currentAddress;
                 web3.eth.getBalance(currentAddress).then(amount=>balance.textContent = `Available: ${web3.utils.fromWei(amount, "ether")} DGCC`);
                 connect.style.display = "none";
-                updatePlayerPanel()
+                updateGamePanel()
                 updateGamesList()
             } else {
                 log.textContent = "Not connected";
                 balance.textContent = ""
-                connect.style.display = "block"
+                stats.textContent = "";
+                connect.style.display = "block";
+                hideGamePanel();
             }
         }
 
@@ -51,23 +58,30 @@
             }
         }
 
-        function updatePlayerPanel(){
-            if(contract !== undefined && currentAddress !== undefined){
-                console.log(currentAddress)
+        function updateGamePanel(){
+            if(networkIsValid && contract !== undefined && currentAddress !== undefined){
+                gamePanel.style.display = "block";
                 contract.methods.status(currentAddress).call().then(status=>{
-                    /* stats.textContent = `Created ${status.created}, won ${status.won}, lost ${status.lost}, tie ${status.tie}`;
+                    stats.textContent = `Created ${status.created}, won ${status.won}, lost ${status.lost}, tie ${status.tie}`;
                     isPlaying = !/^0x0+$/.test(status.current);
                     isHosting = isPlaying && status.current === currentAddress;
                     isHosted = isPlaying && !isHosting;
-                    create.style.display = !isPlaying ? "block" : "none"; */
+                    create.style.display = !isPlaying ? "block" : "none";
                 })
             }
         }
 
+        function hideGamePanel(){
+            gamePanel.style.display = "none";
+        }
+
         function checkNetwork (chainId) {
             if(contractChain !== chainId) {
+                networkIsValid = false;
                 log.textContent = `Wrong network ${chainId}`
+                hideGamePanel();
             } else {
+                networkIsValid = true;
                 web3.eth.getAccounts().then(checkAccounts);
             }
         }
@@ -81,7 +95,10 @@
 
             // Network
             ethereum.on('connect', checkNetwork);
-            ethereum.on('disconnect', e=>log.textContent = "Connectivity issue" + e);
+            ethereum.on('disconnect', e=>{
+                networkIsValid = false; 
+                log.textContent = "Connectivity issue" + e;
+            });
             ethereum.on('chainChanged', checkNetwork);
 
             // Account
@@ -100,8 +117,7 @@
             create.onclick = ()=>{
                 contract.methods.create().send({value: web3.utils.toWei("1", "ether"), from: currentAddress}).on('receipt', console.log);
             };
-            updatePlayerPanel()
-            updateGamesList()
+            updateGamePanel()
         }
     </script>
 </body>
