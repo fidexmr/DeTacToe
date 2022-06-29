@@ -7,6 +7,7 @@ contract TicTacToe {
   event Cancelled(address host);
   event Started(address host, address visitor);
   event Move(address host, address author, uint[2] coords);
+  event Squared(address host, address visitor, address winner, uint bet);
 
   struct Game {
     address host;
@@ -15,10 +16,10 @@ contract TicTacToe {
   }
 
   struct Status {
-    uint created;
-    uint won;
-    uint lost;
-    uint tie;
+    uint16 created;
+    uint16 won;
+    uint16 lost;
+    uint16 tie;
     address current;
   }
 
@@ -27,44 +28,48 @@ contract TicTacToe {
   mapping (address=>Status) public status;
 
   function create() public payable {
-    Game storage g = games[msg.sender];
+    Game storage game = games[msg.sender];
     // Requires a bet value and cancels if this player has already planned a game.
-    require(msg.value > 0 && g.bet == 0);
-    g.bet = msg.value;
-    g.host = msg.sender;
+    require(msg.value > 0 && game.bet == 0);
+    game.bet = msg.value;
+    game.host = msg.sender;
     Status storage player = status[msg.sender];
     player.created += 1;
     player.current = msg.sender;
-    emit Created(msg.sender, g.bet);
+    emit Created(msg.sender, game.bet);
   }
 
   function cancel() public payable {
-    Game storage g = games[msg.sender];
-    require(g.bet > 0);
+    Game storage game = games[msg.sender];
+    require(game.bet > 0 && game.visitor == address(0));
     Status storage player = status[msg.sender];
     // The require above should ensure that player.created > 0, and prevent underflow.
     player.created -= 1;
     player.current = address(0);
     // Recharge user.
-    msg.sender.call{value: g.bet};
-    g.bet = 0;
+    msg.sender.call{value: game.bet}("");
+    game.bet = 0;
     emit Cancelled(msg.sender);
   }
 
   function join(address host) public payable {
-    Game storage g = games[host];
-    // Bets must be identical
-    require(msg.value == g.bet);
-    g.visitor = msg.sender;
+    Game storage game = games[host];
     Status storage player = status[msg.sender];
+    // Bets must be identical, addresses must be different, visitor must have no current game.
+    require(msg.value == game.bet && msg.sender != host && player.current == address(0));
+    game.visitor = msg.sender;
     player.current = host;
     emit Started(host, msg.sender);
   }
 
   function claim(address host) public {
-    Game storage g = games[host];
-    require(g.bet > 0);
-    msg.sender.call{value: g.bet * 2};
-    g.bet = 0;
+    Game storage game = games[host];
+    require(game.bet > 0);
+    Status storage player = status[msg.sender];
+    msg.sender.call{value: game.bet * 2}("");
+    emit Squared(host, game.visitor, msg.sender, game.bet);
+    game.bet = 0;
+    player.won += 1;
+    player.current = address(0);
   }
 }
