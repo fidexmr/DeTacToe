@@ -9,8 +9,8 @@ The implementation runs as follows:
 
 ## Todo
 1. complete the game's core logic
-1. do a nice front-end
 1. deploy the contract and the website to prod platforms
+1. add decent front-end
 
 ## Prospects
 Game mechanic: started can win or tie, visitor can lose or tie

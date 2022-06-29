@@ -14,21 +14,26 @@
     </div>
     <button id="connect">Connect</button>
     <div id="game-panel">
-        <div id="offer"></div>
         <button id="create" style="display: none;">Start a game for 1 DGCC</button>
         <button id="cancel" style="display: none;">Cancel game</button>
         <ul id="join"></ul>
+        <div id="active-game">
+            <div id="offer"></div>
+            <p id="game-log"></p>
+            <button id="claim">Claim</button>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <script>
         const contractChain = "0x1691";
-        const contractAddress = "0x5A4aa87289F578257583443dFacF25f5369fb22c";
+        const contractAddress = "0x9f655e3E479919D8C3F465912995958aAfEb84F8";
 
         let web3, contract, currentAddress;
         let isPlaying, isHosting, isHosted;
         let networkIsValid = false;
         let gamesList, cancelledGames, startedGames, squaredGames;
 
+        const activeGame = document.getElementById('active-game')
         const log = document.getElementById('log')
         const stats = document.getElementById('stats')
         const balance = document.getElementById('balance')
@@ -39,8 +44,26 @@
         const join = document.getElementById('join');
         const gamePanel = document.getElementById('game-panel')
         const connect = document.getElementById('connect');
+        const claim = document.getElementById('claim')
+        const gameLog = document.getElementById('game-log')
 
         window.addEventListener('load', init);
+
+        function showActiveGame (gameHost){
+            activeGame.style.display=  "block";
+            contract.methods.games(gameHost).call().then(game=>{
+                const gameIsStarted = !/^0x0+$/.test(game.visitor)
+                cancel.style.display = gameIsStarted ? "none" : "block";
+                gameLog.style.display = gameIsStarted ? "block" : "none";
+                claim.style.display = gameIsStarted ? "block" : "none";
+                gameLog.textContent = `You have ${isHosting? "initiated a game joined by" : "joined a game with"} ${isHosting ? game.visitor : gameHost} for ${web3.utils.fromWei(game.bet, "ether")} GDCC`;
+                claim.onclick = () => contract.methods.claim(gameHost).send({from: currentAddress});
+            })
+        }
+
+        function hideActiveGame (){
+            activeGame.style.display="none"
+        }
 
         function checkAccounts(accounts){
             if(networkIsValid && accounts !== undefined && accounts.length > 0){
@@ -55,7 +78,12 @@
                         isHosting = isPlaying && status.current === currentAddress;
                         isHosted = isPlaying && !isHosting;
                         create.style.display = !isPlaying ? "block" : "none";
-                        cancel.style.display = isHosting ? "block" : "none";
+                        if(isPlaying){
+                            showActiveGame(status.current);
+                        }else{
+                            hideActiveGame();
+                            cancel.style.display = "none"
+                        }
                     })
                 }
                 updateGamePanel()
@@ -66,7 +94,7 @@
                 stats.textContent = "";
                 connect.style.display = "block";
                 hideGamePanel();
-                hidePlayerPanel()
+                hidePlayerPanel();
             }
         }
 
@@ -77,14 +105,13 @@
             Promise.all([p1, p2, p3]).then(values=>{
                 gamesList = {}
                 values[0].forEach(entry=>{
-                    gamesList[entry.returnValues.host] = gamesList[entry.returnValues.host] === undefined ? [entry.returnValues.bet] : game.push(entry.returnValues.bet);
+                    gamesList[entry.returnValues.host] === undefined ? gamesList[entry.returnValues.host] = [entry.returnValues.bet] : gamesList[entry.returnValues.host].push(entry.returnValues.bet);
                 })
                 cancelledGames = values[1].map(entry=>({host: entry.returnValues.host}));
                 startedGames = values[2].map(entry=>({host: entry.returnValues.host, visitor: entry.returnValues.visitor}))
                 cancelledGames.forEach(game=>gamesList[game.host].shift())
                 startedGames.forEach(game=>gamesList[game.host].shift());
                 if(gamesList[currentAddress] !== undefined && gamesList[currentAddress].length > 0){
-                    console.log(gamesList[currentAddress])
                     offer.style.display = "block";
                     offer.textContent = `Waiting for a player to join for ${web3.utils.fromWei( gamesList[currentAddress][0], "ether")} DGCC`;
                     delete gamesList[currentAddress]
@@ -164,9 +191,11 @@
 
         function handleContract(){
             create.onclick = ()=>{ contract.methods.create().send({from: currentAddress, value: web3.utils.toWei("1", "ether")}) };
-            cancel.onclick = ()=>{ contract.methods.cancel().send({from: currentAddress}) }
+            cancel.onclick = ()=>{ contract.methods.cancel().send({from: currentAddress}) };
             contract.events.Created().on('data', ()=>checkAccounts([currentAddress]));
             contract.events.Cancelled().on('data', ()=>checkAccounts([currentAddress]));
+            contract.events.Started().on('data', ()=>checkAccounts([currentAddress]));
+            contract.events.Squared().on('data', ()=>checkAccounts([currentAddress]));
             updateGamePanel()
         }
     </script>

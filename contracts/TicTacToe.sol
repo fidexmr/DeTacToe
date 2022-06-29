@@ -39,7 +39,7 @@ contract TicTacToe {
     emit Created(msg.sender, game.bet);
   }
 
-  function cancel() public payable {
+  function cancel() public {
     Game storage game = games[msg.sender];
     require(game.bet > 0 && game.visitor == address(0));
     Status storage player = status[msg.sender];
@@ -65,11 +65,17 @@ contract TicTacToe {
   function claim(address host) public {
     Game storage game = games[host];
     require(game.bet > 0);
-    Status storage player = status[msg.sender];
+    if(msg.sender != host){
+      Status storage loser = status[host];
+      loser.lost += 1;
+      loser.current = address(0);
+    }
+    Status storage winner = status[msg.sender];
     msg.sender.call{value: game.bet * 2}("");
     emit Squared(host, game.visitor, msg.sender, game.bet);
     game.bet = 0;
-    player.won += 1;
-    player.current = address(0);
+    game.visitor = address(0);
+    winner.won += 1;
+    winner.current = address(0);
   }
 }
