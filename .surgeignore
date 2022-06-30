@@ -1,0 +1,12 @@
+test
+node_modules
+contracts
+migrations
+.env
+.secret
+.gitignore
+package.json
+README.md
+truffle-config.js
+yarn.lock
+!build/contracts
