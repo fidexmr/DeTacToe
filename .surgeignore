@@ -10,3 +10,6 @@ README.md
 truffle-config.js
 yarn.lock
 !build/contracts
+src
+tsconfig.json
+webpack.config.js

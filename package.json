@@ -1,11 +1,27 @@
 {
   "name": "DeTacToe",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A decentralized tic tac toe game.",
+  "author": "FideX <fidexmr@dnmx.org>",
+  "main": "index.html",
   "repository": "https://github.com/fidexmr/DeTacToe.git",
   "license": "MIT",
-  "dependencies": {},
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack-dev-server"
+  },
+  "dependencies": {
+    "web3": "^1.7.4"
+  },
   "devDependencies": {
-    "@truffle/hdwallet-provider": "^2.0.9"
+    "@truffle/hdwallet-provider": "^2.0.9",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.9.3"
+  },
+  "resolutions": {
+    "@types/eslint": "8.4.3"
   }
 }

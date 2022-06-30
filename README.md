@@ -1,5 +1,5 @@
 # DeTacToe
-This repo contains the code for a WIP tic-tac-toe game to experiment with solidity and gamefi concepts.
+This repo contains the code for a tic-tac-toe game to experiment gamefi capabilities.
 
 ## Description
 The implementation runs as follows: 
@@ -8,13 +8,13 @@ The implementation runs as follows:
 1. The one winning the game gets the money.
 
 ## Todo
-1. complete the game's core logic
-1. deploy the contract and the website to prod platforms
 1. add decent front-end
+1. Try out on a faster network than EVM.
+1. Fix Microsoft Edge responsiveness.
+1. Improve the CI part.
+1. Fix player not finishing the game.
 
 ## Prospects
 Game mechanic: started can win or tie, visitor can lose or tie
 => Should an oracle be added in order to have random first round?
-=> What if no one joins?
-=> What if a player stops playing when the scenario becomes obvious, should all scenarii be pre-encoded?
 => Can a player create a new game offer while being visitor to another one?
