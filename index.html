@@ -16,17 +16,22 @@
     <div id="game-panel">
         <button id="create" style="display: none;">Start a game for 1 DGCC</button>
         <button id="cancel" style="display: none;">Cancel game</button>
+        <div id="offer"></div>
         <ul id="join"></ul>
         <div id="active-game">
-            <div id="offer"></div>
             <p id="game-log"></p>
-            <button id="claim">Claim</button>
+            <table id="tictactoe">
+                <tr><td><button id="0"></button></td><td><button id="1"></button></td><td><button id="2"></button></td></tr>
+                <tr><td><button id="3"></button></td><td><button id="4"></button></td><td><button id="5"></button></td></tr>
+                <tr><td><button id="6"></button></td><td><button id="7"></button></td><td><button id="8"></button></td></tr>
+            </table>
+            <p id="turn"></p>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <script>
         const contractChain = "0x1691";
-        const contractAddress = "0x9f655e3E479919D8C3F465912995958aAfEb84F8";
+        const contractAddress = "0xeC73439b42866523fA6Daf933c47D5B301FfA385";
 
         let web3, contract, currentAddress;
         let isPlaying, isHosting, isHosted;
@@ -44,21 +49,50 @@
         const join = document.getElementById('join');
         const gamePanel = document.getElementById('game-panel')
         const connect = document.getElementById('connect');
-        const claim = document.getElementById('claim')
         const gameLog = document.getElementById('game-log')
+        const table = document.getElementById('tictactoe');
+        const cells = table.querySelectorAll('td button');
+        const turn = document.getElementById('turn');
 
         window.addEventListener('load', init);
 
         function showActiveGame (gameHost){
-            activeGame.style.display=  "block";
             contract.methods.games(gameHost).call().then(game=>{
-                const gameIsStarted = !/^0x0+$/.test(game.visitor)
+                const gameIsStarted = !/^0x0+$/.test(game.visitor);
                 cancel.style.display = gameIsStarted ? "none" : "block";
+                activeGame.style.display=  gameIsStarted ? "block" : "none";
                 gameLog.style.display = gameIsStarted ? "block" : "none";
-                claim.style.display = gameIsStarted ? "block" : "none";
                 gameLog.textContent = `You have ${isHosting? "initiated a game joined by" : "joined a game with"} ${isHosting ? game.visitor : gameHost} for ${web3.utils.fromWei(game.bet, "ether")} GDCC`;
-                claim.onclick = () => contract.methods.claim(gameHost).send({from: currentAddress});
+                const isHost = currentAddress === gameHost;
+                const hasTurn = game.hostTurn === isHost;
+                turn.textContent = hasTurn ? "It's your turn!" : "It's the other player's turn";
+                drawGame(gameHost, hasTurn);
             })
+        }
+
+        function drawGame(gameHost, hasTurn){
+            contract.methods.getGame(gameHost).call().then(game=>{
+                game.forEach((address,i)=>{
+                    const button = cells[i];
+                    const free = /^0x0+$/.test(address);
+                    button.innerHTML = free ? "..." : address === currentAddress ? "X" : "0";
+                    button.disabled = !(hasTurn && free);
+                    button.onclick = () => contract.methods.move(gameHost, Number(button.id)).send({from: currentAddress});
+                })
+                contract.events.Move().on('data', ({returnValues})=>{
+                    const isAuthor = returnValues.author === currentAddress;
+                    cells[returnValues.coords].innerHTML = isAuthor ? "X" : "O";
+                    for(let i=0;i<cells.length;i++){
+                        if(isAuthor){
+                            cells[i].disabled = true;
+                            turn.textContent = "It's the other player's turn";
+                        }else if(cells[i].innerHTML === "..."){
+                            cells[i].disabled = false;
+                            turn.textContent = "It's your turn";
+                        }
+                    }
+                })
+            });
         }
 
         function hideActiveGame (){
