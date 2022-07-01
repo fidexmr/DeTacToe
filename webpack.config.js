@@ -1,7 +1,9 @@
+const { triggerAsyncId } = require('async_hooks');
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: './src/index.js',
+  mode: "development",
   module: {
     rules: [
       {
@@ -11,14 +13,18 @@ module.exports = {
       },
     ],
   },
+  devtool: 'source-map',
   devServer: {
-    port: 8080
+    port: 8080,
+    hot: true,
+    open: true,
+    static: path.resolve(__dirname)
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
-    filename: 'app.js',
-    path: path.resolve(__dirname, 'build'),
+    filename: 'bundle.js',
+    path: path.resolve(__dirname),
   },
 };
