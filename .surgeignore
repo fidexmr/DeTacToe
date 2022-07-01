@@ -13,3 +13,6 @@ yarn.lock
 src
 tsconfig.json
 webpack.config.js
+.vscode
+.eslintrc
+.prettierrc
