@@ -1,3 +1,3 @@
 <template>
-  <p>Invalid Network</p>
+  <p>Invalid network</p>
 </template>

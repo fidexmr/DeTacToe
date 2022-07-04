@@ -44,46 +44,42 @@ export const store = createStore<State>({
     },
   },
   actions: {
-    init({ commit, dispatch }) {
-      window.ethereum.on('connect', (e) => commit('setNetwork', e.chainId));
-      window.ethereum.on('disconnect', () => commit('setNetwork'));
-      window.ethereum.on('chainChanged', (e) => commit('setNetwork', e as string));
+    init({ dispatch }) {
+      window.ethereum.on('connect', (e) =>
+        dispatch('updateAll', (e as { [key: string]: string }).chainId),
+      );
+      window.ethereum.on('disconnect', () => dispatch('updateAll'));
+      window.ethereum.on('chainChanged', (e) => dispatch('updateAll', e as string));
       web3 = new Web3(window.ethereum as any);
-      void dispatch('getAccount');
-      void dispatch('getContract');
+      web3.eth.getChainId((err, chainId) => dispatch('updateAll', String(chainId)));
+      dispatch('getAccount');
+      dispatch('getContract');
     },
-    getAccount({ commit, dispatch }) {
-      const getBalance = (accounts) => {
+    updateAll({ dispatch, commit }, chainId: string) {
+      commit('setNetwork', chainId);
+      dispatch('getAccount');
+      dispatch('getContract');
+    },
+    getAccount({ commit }) {
+      const getBalance = (accounts: string[]) => {
         commit('setAccount', accounts);
-        void dispatch('getBalance');
+        web3.eth.getBalance(accounts[0]).then((balance) => {
+          commit('setBalance', Number(web3.utils.fromWei(balance, 'ether')));
+        });
       };
-      const getAccount = () => void web3.eth.getAccounts().then(getBalance).catch(console.error);
+      const getAccount = () => web3.eth.getAccounts().then(getBalance);
       getAccount();
       window.ethereum.on('accountsChanged', getAccount);
     },
-    getBalance({ commit, state }) {
-      web3.eth
-        .getBalance(state.account)
-        .then((balance) => {
-          const amountInEth = web3.utils.fromWei(balance, 'ether');
-          commit('setBalance', Number(amountInEth));
-          // bet.max = amountInEth - 0.01;
-        })
-        .catch(console.error);
-    },
     getContract({ commit }) {
-      void fetch('./build/contracts/TicTacToe.json')
+      fetch('./build/contracts/TicTacToe.json')
         .then((r) => r.json())
         .then((compiledContract: TicTacToeInstance) => {
           commit('setContract', new web3.eth.Contract(compiledContract.abi, CONTRACT_ADDRESS));
         });
     },
-    // button
     connect({ commit }) {
-      web3.eth
-        .requestAccounts()
-        .then((accounts) => commit('setAccount', accounts))
-        .catch(console.error);
+      web3.eth.requestAccounts().then((accounts) => commit('setAccount', accounts));
     },
   },
 });

@@ -1,4 +1,3 @@
-export const CONTRACT_CHAIN = 5777;
-export const UNIT = 'DGCC';
-export const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS_GANACHE;
-export const DEPLOYMENT_BLOCK = process.env.DEPLOYMENT_BLOCK_GANACHE;
+export const CONTRACT_CHAIN = 5;
+export const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS_GOERLI;
+export const DEPLOYMENT_BLOCK = process.env.DEPLOYMENT_BLOCK_GOERLI;
