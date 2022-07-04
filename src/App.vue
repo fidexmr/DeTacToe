@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import Account from './components/Account.vue';
-import Title from './components/Title.vue';
+import Content from './components/Content.vue';
+import InstallMetamask from './InstallMetamask.vue';
+import { useStore } from './store';
+const hasMetamask = window.ethereum !== undefined;
+hasMetamask && useStore().dispatch('init');
 </script>
 
 <template>
-  <Title />
-  <Account />
+  <Content v-if="hasMetamask" />
+  <InstallMetamask v-else />
 </template>
 
 <style>

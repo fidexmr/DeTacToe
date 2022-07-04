@@ -4,10 +4,9 @@
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
     "no-console": 1,
-    "prettier/prettier": 2,
-    "sort-imports": 1
+    "prettier/prettier": 2
   },
-  "ignorePatterns": ["webpack.config.js", "index.html"],
+  "ignorePatterns": ["index.html"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
