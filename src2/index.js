@@ -38,9 +38,12 @@ function showActiveGame(gameHost) {
       cancel.style.display = gameIsStarted ? 'none' : 'block';
       activeGame.style.display = gameIsStarted ? 'block' : 'none';
       gameLog.style.display = gameIsStarted ? 'block' : 'none';
-      gameLog.textContent = `You have ${isHosting ? 'initiated a game joined by' : 'joined a game with'} ${
-        isHosting ? game.visitor : gameHost
-      } for ${web3.utils.fromWei(game.bet, 'ether')} ${UNIT}`;
+      gameLog.textContent = `You have ${
+        isHosting ? 'initiated a game joined by' : 'joined a game with'
+      } ${isHosting ? game.visitor : gameHost} for ${web3.utils.fromWei(
+        game.bet,
+        'ether',
+      )} ${UNIT}`;
       const isHost = currentAddress === gameHost;
       const hasTurn = game.hostTurn === isHost;
       turn.textContent = hasTurn ? "It's your turn!" : "It's the other player's turn";
@@ -58,7 +61,8 @@ function drawGame(gameHost, hasTurn) {
         const free = /^0x0+$/.test(address);
         button.innerHTML = free ? '...' : address === currentAddress ? 'X' : '0';
         button.disabled = !(hasTurn && free);
-        button.onclick = () => contract.methods.move(gameHost, Number(button.id)).send({ from: currentAddress });
+        button.onclick = () =>
+          contract.methods.move(gameHost, Number(button.id)).send({ from: currentAddress });
       });
       contract.events.Move().on('data', ({ returnValues }) => {
         const isAuthor = returnValues.author === currentAddress;
@@ -125,15 +129,15 @@ function checkAccounts(accounts) {
 function updateGamesList() {
   const p1 = contract.getPastEvents('Created', {
     fromBlock: DEPLOYMENT_BLOCK,
-    toBlock: 'latest'
+    toBlock: 'latest',
   });
   const p2 = contract.getPastEvents('Cancelled', {
     fromBlock: DEPLOYMENT_BLOCK,
-    toBlock: 'latest'
+    toBlock: 'latest',
   });
   const p3 = contract.getPastEvents('Started', {
     fromBlock: DEPLOYMENT_BLOCK,
-    toBlock: 'latest'
+    toBlock: 'latest',
   });
   Promise.all([p1, p2, p3]).then((values) => {
     gamesList = {};
@@ -143,11 +147,11 @@ function updateGamesList() {
         : gamesList[entry.returnValues.host].push(entry.returnValues.bet);
     });
     cancelledGames = values[1].map((entry) => ({
-      host: entry.returnValues.host
+      host: entry.returnValues.host,
     }));
     startedGames = values[2].map((entry) => ({
       host: entry.returnValues.host,
-      visitor: entry.returnValues.visitor
+      visitor: entry.returnValues.visitor,
     }));
     cancelledGames.forEach((game) => gamesList[game.host].shift());
     startedGames.forEach((game) => gamesList[game.host].shift());
@@ -155,7 +159,7 @@ function updateGamesList() {
       offer.style.display = 'block';
       offer.textContent = `Waiting for a player to join for ${web3.utils.fromWei(
         gamesList[currentAddress][0],
-        'ether'
+        'ether',
       )} ${UNIT}`;
       delete gamesList[currentAddress];
     } else {
@@ -169,7 +173,8 @@ function updateGamesList() {
       const betAmount = web3.utils.fromWei(gamesList[host][0], 'ether');
       const button = document.createElement('button');
       button.innerHTML = `Join ${host} for ${betAmount} ${UNIT}`;
-      button.onclick = () => contract.methods.join(host).send({ from: currentAddress, value: gamesList[host][0] });
+      button.onclick = () =>
+        contract.methods.join(host).send({ from: currentAddress, value: gamesList[host][0] });
       button.disabled = betAmount >= currentBalance + 0.01;
       join.appendChild(button);
     });
@@ -248,7 +253,7 @@ function handleContract() {
   create.onclick = () => {
     contract.methods.create().send({
       from: currentAddress,
-      value: web3.utils.toWei(String(currentBet), 'ether')
+      value: web3.utils.toWei(String(currentBet), 'ether'),
     });
   };
   cancel.onclick = () => {

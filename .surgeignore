@@ -9,6 +9,7 @@ package.json
 README.md
 truffle-config.js
 yarn.lock
+yarn-error.log
 !build/contracts
 src
 tsconfig.json

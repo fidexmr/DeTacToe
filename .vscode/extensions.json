@@ -3,6 +3,7 @@
     "editorconfig.editorconfig",
     "juanblanco.solidity",
     "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "Vue.volar"
   ]
 }
