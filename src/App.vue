@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import Address from './components/Address.vue';
+import Account from './components/Account.vue';
+import Title from './components/Title.vue';
 </script>
 
 <template>
-  <Address />
+  <Title />
+  <Account />
 </template>
 
 <style>

@@ -13,10 +13,10 @@ The implementation runs as follows:
 ## Todo
 
 1. add decent front-end
-1. add hardhat dev script capability
-1. Try out on a faster network than EVM
+1. hardhat contract page interaction generation?
+1. Try out on a faster network than EVM?
 1. Fix Microsoft Edge responsiveness
-1. Improve the CI part
+1. Add github action with linting and testing
 1. Fix player not finishing the game
 
 ## Prospects
