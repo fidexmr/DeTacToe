@@ -102,15 +102,16 @@ contract TicTacToe {
 
   function create() public payable {
     Game storage game = games[msg.sender];
-    // Requires a bet value and cancels if this player has already planned a game.
-    require(msg.value > 0 && game.bet == 0);
+    Status storage player = status[msg.sender];
+    // Requires no current game, a bet value,
+    // cancels if this player has already planned a game (bet != 0).
+    require(player.current ==address(0) && msg.value > 0 && game.bet == 0);
     game.bet = msg.value;
     game.host = msg.sender;
     game.hostTurn = false; // TODO: add randomness.
     for(uint i = 0; i < game.game.length; i++){
       game.game[i] = address(0);
     }
-    Status storage player = status[msg.sender];
     player.created += 1;
     player.current = msg.sender;
     emit Created(msg.sender, game.bet);

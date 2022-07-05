@@ -3,3 +3,6 @@ bin
 build
 .env
 .secret
+yarn-error.log
+types
+dist

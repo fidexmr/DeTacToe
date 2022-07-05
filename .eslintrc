@@ -1,0 +1,25 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "prettier"],
+  "rules": {
+    "no-console": 1,
+    "prettier/prettier": 2,
+    "@typescript-eslint/no-floating-promises": 0,
+    "@typescript-eslint/no-misused-promises": 0
+  },
+  "ignorePatterns": ["index.html"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier"
+  ],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}
