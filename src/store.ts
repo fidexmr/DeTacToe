@@ -148,7 +148,7 @@ export const store = createStore<State>({
     },
     getContract({ dispatch, state, getters }) {
       if (!getters.isValidNetwork) return;
-      fetch('./build/contracts/TicTacToe.json')
+      fetch('.' + (import.meta.env.PROD ? '' : '/build') + '/contracts/TicTacToe.json')
         .then((r) => r.json())
         .then((compiledContract: TicTacToeInstance) => {
           contract = new web3.eth.Contract(compiledContract.abi, CONTRACT_ADDRESS);

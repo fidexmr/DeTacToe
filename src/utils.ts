@@ -23,3 +23,9 @@ export function getNetworkUnit(network: number): string {
 export function isNullAddress(address: string): boolean {
   return /^0x0+$/.test(address);
 }
+
+export function shortenAddress(address: string): string {
+  const firstBit = address.slice(0, 6);
+  const lastBit = address.slice(address.length - 4, address.length);
+  return `${firstBit}....${lastBit}`;
+}

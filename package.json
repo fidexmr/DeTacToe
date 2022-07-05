@@ -9,7 +9,7 @@
   "scripts": {
     "build-types": "yarn typechain --target=truffle-v5 'build/contracts/*.json'",
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build && truffle compile",
     "preview": "vite preview"
   },
   "dependencies": {

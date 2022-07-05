@@ -12,7 +12,6 @@ This repo contains the code for a tic-tac-toe game on the Goerli blockchain or a
 
 ## Todo
 
-1. add decent front-end
 1. hardhat contract page interaction generation for solidity dev?
 1. Try out on a faster network than EVM?
 1. Fix Microsoft Edge responsiveness

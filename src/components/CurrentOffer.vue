@@ -1,5 +1,6 @@
 <template>
-  <p>Waiting for someone to join your game for {{ bet }} {{ getNetworkUnit(Number(network)) }}</p>
+  <h2>Your offer</h2>
+  <h2>{{ bet }} {{ getNetworkUnit(Number(network)) }}</h2>
   <button @click="cancel">Cancel Offer</button>
 </template>
 

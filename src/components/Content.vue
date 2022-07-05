@@ -22,23 +22,33 @@ const connect = () => store.dispatch('connect');
 <template>
   <InvalidNetwork v-if="!isValidNetwork" />
   <div v-else>
-    <button @click="connect" v-if="account === undefined">connect</button>
-    <div v-else>
-      <h1>{{ account ?? '...' }}</h1>
-      <p>{{ balance }} {{ getNetworkUnit(Number(network)) }}</p>
-      <p v-if="balance! < 0.02">
-        Your balance is low. <a href="https://goerlifaucet.com/" target="_blank">Refuel!</a>
-      </p>
-      <p v-if="stats !== undefined">
-        Won: {{ stats.won }}, lost: {{ stats.lost }}, tie: {{ stats.tie }}, created:
-        {{ stats.created }}
-      </p>
-      <div v-if="!isPlaying">
-        <CreateGame v-if="isIdle" />
-        <CurrentOffer v-if="isWaiting" />
-        <GamesList />
+    <div class="box">
+      <div v-if="account === undefined" class="flex">
+        <h1 class="warn">Disconnected!</h1>
+        <button @click="connect">connect</button>
       </div>
-      <Game v-else />
+      <div v-else>
+        <h2>{{ account ?? '...' }}</h2>
+        <p v-if="stats !== undefined" class="flex">
+          <p>STATS: </p><p>won {{ stats.won }} | lost {{ stats.lost }} | tie {{ stats.tie }}</p>
+        </p>
+        <p class="flex">
+          <p>BALANCE:</p>
+          <p>{{ balance }} {{ getNetworkUnit(Number(network)) }}</p>
+        </p>
+        <p v-if="balance! < 0.02" style="text-align:center">
+          <br>
+          Your balance is low. Time to <a href="https://goerlifaucet.com/" target="_blank">refuel</a>.
+        </p>
+      </div>
+    </div>
+    <Game v-if="isPlaying" />
+    <div v-else class="box flex">
+      <GamesList />
+      <div>
+        <CreateGame v-if="isIdle" />
+        <CurrentOffer v-else-if="isWaiting" />
+      </div>
     </div>
   </div>
 </template>

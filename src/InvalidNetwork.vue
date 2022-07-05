@@ -5,6 +5,8 @@ const switchNetwork = () => store.dispatch('switchNetwork');
 </script>
 
 <template>
-  <p>Invalid network</p>
-  <button @click="switchNetwork">Switch to Goerli</button>
+  <div class="box flex">
+    <h1 class="warn">Invalid network !</h1>
+    <button @click="switchNetwork">Switch to Goerli</button>
+  </div>
 </template>
