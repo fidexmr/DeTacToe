@@ -1,26 +1,21 @@
 # DeTacToe
 
-This repo contains the code for a tic-tac-toe game to experiment gamefi capabilities.
+Welcome to DeTacToe, the decentralized tic tac toe! One can use it to bet money on a game against a remote opponent and use the blockchain to ensure the bet is enforced.
 
-## Description
+The master implementation is live at [here](https://detactoe.surge.sh) using the Goerli testnet and its fake money.
 
-The implementation runs as follows:
+This app is thought as a personal demo to experiment the current blockchain tech stack and perhaps reuse boilerplate code.
 
-1. an address sends a bet to the contract to tease another player. It can be renounced or cancelled.
-1. another address can pick the game and the contract starts it if the bet is identical
-1. The one winning the game gets the money.
+## Code
+
+This repo contains the code for a tic-tac-toe game on the Goerli blockchain or a local Ganache blockchain. The app uses Vite, Vue3, Vuex, Typescript, Typechain, Truffle and Web3.js.
 
 ## Todo
 
 1. add decent front-end
-1. hardhat contract page interaction generation?
+1. hardhat contract page interaction generation for solidity dev?
 1. Try out on a faster network than EVM?
 1. Fix Microsoft Edge responsiveness
 1. Add github action with linting and testing
 1. Fix player not finishing the game
-
-## Prospects
-
-Game mechanic: started can win or tie, visitor can lose or tie
-=> Should an oracle be added in order to have random first round?
-=> Can a player create a new game offer while being visitor to another one?
+1. Add oracle to add randomness to who plays first

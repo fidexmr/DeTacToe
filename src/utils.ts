@@ -19,3 +19,7 @@ export function getNetworkUnit(network: number): string {
       return 'Eth';
   }
 }
+
+export function isNullAddress(address: string): boolean {
+  return /^0x0+$/.test(address);
+}

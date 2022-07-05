@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Content from './components/Content.vue';
+import Welcome from './components/Welcome.vue';
 import InstallMetamask from './InstallMetamask.vue';
 import { useStore } from './store';
 const hasMetamask = window.ethereum !== undefined;
@@ -7,6 +8,7 @@ hasMetamask && useStore().dispatch('init');
 </script>
 
 <template>
+  <Welcome />
   <Content v-if="hasMetamask" />
   <InstallMetamask v-else />
 </template>
