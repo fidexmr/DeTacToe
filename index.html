@@ -11,7 +11,6 @@
     <script type="module">
       import process from 'process';
       import { Buffer } from 'buffer';
-
       window.Buffer = Buffer;
       window.process = process;
     </script>
@@ -19,29 +18,5 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
-    <!-- <p id="log">Nothing</p>
-    <div id="player">
-        <p id="balance"></p>
-        <p id="stats"></p>
-    </div>
-    <button id="connect">Connect</button>
-    <div id="game-panel">
-        <input type="number" id="bet" step="0.001" min="0.001" value="0.01">
-        <button id="create" style="display: none;">Start a game for 1 DGCC</button>
-        <button id="cancel" style="display: none;">Cancel game</button>
-        <div id="offer"></div>
-        <ul id="join"></ul>
-        <div id="active-game">
-            <p id="game-log"></p>
-            <table id="tictactoe">
-                <tr><td><button id="0"></button></td><td><button id="1"></button></td><td><button id="2"></button></td></tr>
-                <tr><td><button id="3"></button></td><td><button id="4"></button></td><td><button id="5"></button></td></tr>
-                <tr><td><button id="6"></button></td><td><button id="7"></button></td><td><button id="8"></button></td></tr>
-            </table>
-            <p id="turn"></p>
-        </div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
-    <script src="bundle.js"></script> -->
   </body>
 </html>

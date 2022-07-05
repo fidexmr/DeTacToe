@@ -3,7 +3,7 @@
 import { InjectionKey } from 'vue';
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
 import Web3 from 'web3';
-import { Contract } from 'web3-eth-contract';
+import { Contract, EventData } from 'web3-eth-contract';
 import { TicTacToeInstance } from '../types/truffle-contracts';
 import { CONTRACT_ADDRESS, CONTRACT_CHAIN, DEPLOYMENT_BLOCK } from './const';
 import { isNullAddress } from './utils';
@@ -192,7 +192,7 @@ export const store = createStore<State>({
         .call()
         .then((grid: string[]) => {
           commit('setGrid', grid);
-          contract.events.Move().on('data', (e: unknown) => {
+          contract.events.Move().on('data', (e: EventData) => {
             dispatch('getGame', e.returnValues.host);
             commit('setGridCoords', {
               coords: Number(e.returnValues.coords),
