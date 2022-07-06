@@ -50,7 +50,9 @@ p {
 #app > div {
   left: 50%;
   position: relative;
-  margin-left: -250px;
+  margin-left: -275px;
+  box-sizing: border-box;
+  width: 550px;
 }
 .box {
   background: #fff;
@@ -58,7 +60,6 @@ p {
   border: solid 3px #000;
   box-shadow: 5px 5px 0 #000;
   margin-top: 20px;
-  max-width: 500px;
   padding: 20px;
   overflow: hidden;
 }
@@ -95,5 +96,11 @@ button:disabled:hover {
 }
 .warn {
   margin: 0;
+}
+@media (max-width: 780px) {
+  #app > div {
+    margin-left: -188px;
+    width: 375px;
+  }
 }
 </style>
