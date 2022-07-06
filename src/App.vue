@@ -16,9 +16,7 @@ hasMetamask && useStore().dispatch('init');
 <style>
 body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  background: rgb(0, 0, 0);
   margin: 0;
-  text-shadow: 0 0 2px #000;
   overflow-x: hidden;
 }
 a {
@@ -44,12 +42,11 @@ p {
 }
 .box {
   border-radius: 15px;
-  border: solid 3px #ff7300;
-  box-shadow: 0 0 20px #ff3e3e;
+  border: solid 3px #000;
+  box-shadow: 5px 5px 0 #000;
   margin-top: 20px;
   max-width: 600px;
   padding: 20px;
-  background: #da681c;
 }
 .flex {
   display: flex;
@@ -58,27 +55,29 @@ p {
 }
 button {
   border-radius: 10px;
-  box-shadow: 0 0 10px #000;
-  background: #b00;
+  box-shadow: 3px 3px 0 #000;
+  background: #ffda37;
   font-weight: bold;
   padding: 10px;
   text-transform: uppercase;
   border: solid 3px #000;
   cursor: pointer;
-  transition: ease 300ms;
+  transition: ease 150ms;
 }
 button:hover {
-  background: #f00;
+  box-shadow: 0px 0px 0 #000;
+  transform: translateX(3px) translateY(3px);
+  background: #ff2d2d;
 }
 button:disabled {
-  background: #800;
+  background: #ffc03a;
   color: #222;
   cursor: default;
   box-shadow: 0 0 0;
   border: none;
 }
 button:disabled:hover {
-  background: #800;
+  transform: translateX(0) translateY(0);
 }
 .warn {
   margin: 0;

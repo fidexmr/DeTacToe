@@ -7,7 +7,7 @@
           <button
             @click="() => playAt(row * 3 + column)"
             :key="row * 3 + column"
-            :disabled="!(hasTurn && isNullAddress(grid[row * 3 + column]))"
+            :disabled="!(!hasTurn && isNullAddress(grid[row * 3 + column]))"
           >
             {{
               grid[row * 3 + column] === self
