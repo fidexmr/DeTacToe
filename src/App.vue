@@ -21,6 +21,9 @@ body {
   text-shadow: 0 0 2px #000;
   overflow-x: hidden;
 }
+a {
+  color: #000;
+}
 p,
 h1,
 h2 {
@@ -41,12 +44,12 @@ p {
 }
 .box {
   border-radius: 15px;
-  border: solid 3px #aaa;
+  border: solid 3px #ff7300;
   box-shadow: 0 0 20px #ff3e3e;
   margin-top: 20px;
   max-width: 600px;
   padding: 20px;
-  background: #ff3e3e;
+  background: #da681c;
 }
 .flex {
   display: flex;
@@ -70,6 +73,9 @@ button:hover {
 button:disabled {
   background: #800;
   color: #222;
+  cursor: default;
+  box-shadow: 0 0 0;
+  border: none;
 }
 button:disabled:hover {
   background: #800;

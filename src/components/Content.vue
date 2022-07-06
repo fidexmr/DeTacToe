@@ -43,7 +43,7 @@ const connect = () => store.dispatch('connect');
       </div>
     </div>
     <Game v-if="isPlaying" />
-    <div v-else class="box flex">
+    <div v-else-if="account!==undefined" class="box flex">
       <GamesList />
       <div>
         <CreateGame v-if="isIdle" />

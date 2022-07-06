@@ -11,10 +11,10 @@
           >
             {{
               grid[row * 3 + column] === self
-                ? '×'
+                ? '&#10006;'
                 : isNullAddress(grid[row * 3 + column])
-                ? '...'
-                : '🞈'
+                ? '&nbsp;'
+                : '&#128903;'
             }}
           </button>
         </td>
@@ -28,6 +28,7 @@
 <style scoped>
 button {
   font-size: 70px;
+  height: 90px;
   width: 100px;
   padding: 0 10px;
 }

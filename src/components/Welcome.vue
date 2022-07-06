@@ -7,6 +7,8 @@
       tic tac toe is finally here to rule your life and death situtations.
     </p>
     <br />
+    <p style="text-align: center">You can also call it kitsch tac toe.</p>
+    <br />
     <p style="text-align: center">
       Find the source code
       <a href="https://github.com/fidexmr/DeTacToe" target="_blank">on Github</a>.
