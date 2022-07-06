@@ -28,7 +28,7 @@ const connect = () => store.dispatch('connect');
         <button @click="connect">connect</button>
       </div>
       <div v-else>
-        <h2>{{ account ?? '...' }}</h2>
+        <h3 class="head">{{ account ?? '...' }}</h3>
         <p v-if="stats !== undefined" class="flex">
           <p>STATS: </p><p>won {{ stats.won }} | lost {{ stats.lost }} | tie {{ stats.tie }}</p>
         </p>

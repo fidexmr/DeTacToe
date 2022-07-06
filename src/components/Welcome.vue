@@ -1,17 +1,12 @@
 <template>
   <div class="box">
-    <h1>X 🔥 Welcome to DeTacToe 🔥 O</h1>
-    <h2>> The game of life and death on the blockchain &lt;</h2>
-    <p style="text-ident: 2em">
-      Long ago people used to play tic tac toe instead of throwing a gauntlet. Now the decentralized
-      tic tac toe is finally here to rule your life and death situtations.
-    </p>
-    <br />
-    <p style="text-align: center">You can also call it kitsch tac toe.</p>
-    <br />
-    <p style="text-align: center">
-      Find the source code
-      <a href="https://github.com/fidexmr/DeTacToe" target="_blank">on Github</a>.
-    </p>
+    <h1 class="head">X 🔥 DeTacToe 🔥 O</h1>
+    <div class="flex">
+      <p style="text-align: center">You can also call it kitsch tac toe.</p>
+      <p style="text-align: center">
+        Find the source code
+        <a href="https://github.com/fidexmr/DeTacToe" target="_blank">on Github</a>.
+      </p>
+    </div>
   </div>
 </template>

@@ -18,19 +18,31 @@ body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   margin: 0;
   overflow-x: hidden;
+  background: #7171b5;
 }
 a {
   color: #000;
 }
 p,
 h1,
-h2 {
+h2,
+h3 {
   margin: 0;
 }
 h1,
-h2 {
+h2,
+h3 {
   text-align: center;
-  margin-bottom: 20px;
+}
+.head {
+  position: relative;
+  text-shadow: 0 0 1px #000;
+  top: -20px;
+  left: -20px;
+  width: calc(100% + 40px);
+  padding: 20px 0;
+  background: #ffda37;
+  border-bottom: solid 3px #000;
 }
 p {
   text-align: justify;
@@ -38,15 +50,17 @@ p {
 #app > div {
   left: 50%;
   position: relative;
-  margin-left: -300px;
+  margin-left: -250px;
 }
 .box {
+  background: #fff;
   border-radius: 15px;
   border: solid 3px #000;
   box-shadow: 5px 5px 0 #000;
   margin-top: 20px;
-  max-width: 600px;
+  max-width: 500px;
   padding: 20px;
+  overflow: hidden;
 }
 .flex {
   display: flex;
