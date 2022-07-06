@@ -4,7 +4,9 @@ Welcome to DeTacToe, the decentralized tic tac toe! One can use it to bet money 
 
 The master implementation is live at [here](https://detactoe.surge.sh) using the Goerli testnet.
 
-![Screenshot](https://i.ibb.co/Rp6PcVW/Bildschirmfoto-von-2022-07-06-13-39-19.png)
+<p align="center">
+  <img src="https://i.ibb.co/Rp6PcVW/Bildschirmfoto-von-2022-07-06-13-39-19.png" alt="Screenshot"/>
+</p>
 
 This app is thought as a personal demo to experiment the current blockchain tech stack and perhaps reuse boilerplate code.
 
