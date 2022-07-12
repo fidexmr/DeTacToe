@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true
+    },
+    "editor.rulers": [100],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "eslint.validate": ["javascript", "javascriptreact", "html", "typescript", "typescriptreact"]
+  },
+  "extensions": {
+    "recommendations": [
+      "editorconfig.editorconfig",
+      "juanblanco.solidity",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "Vue.volar",
+      "tintinweb.solidity-visual-auditor"
+    ]
+  }
+}

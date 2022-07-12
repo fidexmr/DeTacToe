@@ -1,9 +1,0 @@
-{
-  "recommendations": [
-    "editorconfig.editorconfig",
-    "juanblanco.solidity",
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "Vue.volar"
-  ]
-}
